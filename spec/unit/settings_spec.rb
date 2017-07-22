@@ -35,6 +35,31 @@ RSpec.describe ActiveAdmin::Settings do
       expect(instance.foo).to eq 'qqq'
     end
 
+    context "StringSymbolOrProcSetting" do
+      before { subject.setting :foo, 'bar', :string_symbol_or_proc }
+
+      it "should call a proc setting" do
+        @i = 0
+        instance.foo = proc { @i += 1 }
+        expect(instance.foo).to eq 1
+        expect(instance.foo).to eq 2
+      end
+
+      it "should instance_exec if context given" do
+        ctx = Hash[i: 42]
+        instance.foo = proc { self[:i] += 1 }
+        expect(instance.foo(ctx)).to eq 43
+        expect(instance.foo(ctx)).to eq 44
+      end
+
+      it "should send message if symbol given" do
+        ctx = double
+        expect(ctx).to receive(:quux).and_return 'qqq'
+        instance.foo = :quux
+        expect(instance.foo(ctx)).to eq 'qqq'
+      end
+    end
+
     it "should have access to a deprecated value" do
       expect(ActiveAdmin::Deprecation).to receive(:warn).exactly(3).times
       expect(instance.baz).to eq 32

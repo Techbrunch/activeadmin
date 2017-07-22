@@ -35,11 +35,11 @@ module ActiveAdmin
 
     module ClassMethods
 
-      def setting(name, default)
+      def setting(name, default, type = '')
         default_settings[name] = default
 
         define_method "#{name}=" do |arg|
-          instance_variable_set "@#{name}", Setting.build(arg)
+          instance_variable_set "@#{name}", Setting.build(arg, type)
         end
 
         # Create an accessor that looks up the default value if none is set.
