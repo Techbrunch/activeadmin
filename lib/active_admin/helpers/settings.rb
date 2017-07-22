@@ -1,3 +1,5 @@
+require 'active_admin/helpers/setting'
+
 module ActiveAdmin
 
   # Adds a class method to a class to create settings with default values.
@@ -35,12 +37,15 @@ module ActiveAdmin
 
       def setting(name, default)
         default_settings[name] = default
-        attr_writer name
+
+        define_method "#{name}=" do |arg|
+          instance_variable_set "@#{name}", Setting.build(arg)
+        end
 
         # Create an accessor that looks up the default value if none is set.
-        define_method name do
+        define_method name do |*args|
           if instance_variable_defined? "@#{name}"
-            instance_variable_get "@#{name}"
+            instance_variable_get("@#{name}").value(*args)
           else
             read_default_setting name.to_sym
           end
